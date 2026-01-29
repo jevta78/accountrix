@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Onboarding</title>
+</head>
+<body>
+    <h1>Welcome to Accountrix</h1>
+    <p>How do you want to use the app?</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit" name="account_type" value="personal">
+            Personal account
+        </button>
+
+        <button type="submit" name="account_type" value="business">
+            Business account
+        </button>
+    </form>
+</body>
+</html>

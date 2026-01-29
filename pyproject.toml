@@ -1,0 +1,15 @@
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # isort (import order)
+]
+
+exclude = [
+    ".venv",
+    "migrations",
+    "__pycache__",
+]
