@@ -1,77 +1,188 @@
-from django.contrib.auth import login
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
-from .forms import BusinessProfileForm, UserProfileForm, UserRegisterForm
+from .forms import (
+    BusinessProfileForm,
+    PersonalProfileForm,
+    UserRegisterForm,
+)
+from .models import BusinessProfile, PersonalProfile
+from .utils import redirect_after_login
 
-
-@login_required
-def onboarding_view(request):
-    profile = request.user.profile
-
-    if profile.onboarding_completed:
-        return redirect("dashboard")
-
-    if request.method == "POST":
-        profile.onboarding_completed = True
-        profile.save()
-        return redirect("dashboard")
-
-    return render(request, "accounts/onboarding.html")
-
-@login_required
-def dashboard_view(request):
-    return render(request, "accounts/dashboard.html")
+# =========================
+# Home
+# =========================
 
 def home_view(request):
-    if not request.user.is_authenticated:
-        return render(request, "public/home.html")
-
-    profile = request.user.profile
-
-    if not profile.onboarding_completed:
-        return redirect("onboarding")
-
-    return redirect("dashboard")
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+    return render(request, "accounts/home.html")
 
 
-@login_required
-def edit_profile_view(request):
-    user_profile = request.user.profile
-    business_profile = request.user.business
+# =========================
+# Register
+# =========================
 
-    if request.method == "POST":
-        user_form = UserProfileForm(request.POST, instance=user_profile)
-        business_form = BusinessProfileForm(request.POST, instance=business_profile)
-
-        if user_form.is_valid() and business_form.is_valid():
-            user_form.save()
-            business_form.save()
-            return redirect("dashboard")
-    else:
-        user_form = UserProfileForm(instance=user_profile)
-        business_form = BusinessProfileForm(instance=business_profile)
-
-    return render(
-        request,
-        "accounts/edit_profile.html",
-        {
-            "user_form": user_form,
-            "business_form": business_form,
-        },
-    )
-    
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect("home")
+        return redirect("dashboard")
 
     if request.method == "POST":
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("home")
+            return redirect_after_login(user)
     else:
         form = UserRegisterForm()
 
-    return render(request, "public/register.html", {"form": form})
+    return render(request, "accounts/register.html", {"form": form})
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect_after_login(request.user)
+
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        user = authenticate(
+            request,
+            email=email,
+            password=password,
+        )
+
+        if user is not None:
+            login(request, user)
+            return redirect_after_login(user)
+
+        messages.error(request, "Invalid email or password")
+
+    return render(request, "accounts/login.html")
+# =========================
+# Account Type
+# =========================
+
+@login_required
+def account_type_view(request):
+    user = request.user
+
+    if hasattr(user, "personal_profile") or hasattr(user, "business_profile"):
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        account_type = request.POST.get("account_type")
+
+        if account_type == "personal":
+            PersonalProfile.objects.create(
+                user=user,
+                first_name="",
+                last_name="",
+            )
+            return redirect("personal-onboarding")
+
+        if account_type == "business":
+            BusinessProfile.objects.create(
+                owner=user,
+                company_name="",
+            )
+            return redirect("business-onboarding")
+
+    return render(request, "accounts/account_type.html")
+
+
+# =========================
+# Personal Onboarding
+# =========================
+
+@login_required
+def personal_onboarding_view(request):
+    profile = request.user.personal_profile
+
+    if request.method == "POST":
+        form = PersonalProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.onboarding_completed = True
+            profile.save()
+            return redirect("personal-dashboard")
+    else:
+        form = PersonalProfileForm(instance=profile)
+
+    return render(
+        request,
+        "accounts/onboarding_personal.html",
+        {"form": form},
+    )
+
+
+# =========================
+# Business Onboarding
+# =========================
+
+@login_required
+def business_onboarding_view(request):
+    profile = request.user.business_profile
+
+    if request.method == "POST":
+        form = BusinessProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.onboarding_completed = True
+            profile.save()
+            return redirect("business-dashboard")
+    else:
+        form = BusinessProfileForm(instance=profile)
+
+    return render(
+        request,
+        "accounts/onboarding_business.html",
+        {"form": form},
+    )
+
+
+# =========================
+# Dashboards
+# =========================
+
+@login_required
+def dashboard_view(request):
+    user = request.user
+
+    if hasattr(user, "personal_profile"):
+        return redirect("personal-dashboard")
+
+    if hasattr(user, "business_profile"):
+        return redirect("business-dashboard")
+
+    return redirect("account-type")
+
+
+@login_required
+def personal_dashboard_view(request):
+    return render(request, "accounts/dashboard_personal.html")
+
+
+@login_required
+def business_dashboard_view(request):
+    return render(request, "accounts/dashboard_business.html")
+
+@login_required
+def personal_profile_edit_view(request):
+    profile = request.user.personal_profile
+
+    if request.method == "POST":
+        form = PersonalProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect("personal-dashboard")
+    else:
+        form = PersonalProfileForm(instance=profile)
+
+    return render(
+        request,
+        "accounts/profile_edit.html",
+        {"form": form},
+    )

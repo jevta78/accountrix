@@ -1,0 +1,38 @@
+<h1>Invoices</h1>
+
+<a href="{% url 'invoice-create' %}">➕ Create invoice</a>
+<br><br>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>#</th>
+        <th>Date created</th>
+        <th>Client</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Details</th>
+    </tr>
+
+    {% for invoice in invoices %}
+        <tr>
+            <td>{{ invoice.invoice_number }}</td>
+            <td>{{ invoice.created_at }}</td>
+            <td>{{ invoice.client.name }}</td>
+            <td>{{ invoice.total_amount }}</td>
+            <td>{{ invoice.status }}</td>
+            <td><a href="{% url 'invoice-detail' invoice.id %}">View</a></td>
+            <td>{% if invoice.status == "draft" %}
+                 <a href="{% url 'invoice-edit' invoice.id %}">✏️ Edit</a>
+ |               <a href="{% url 'invoice-delete' invoice.id %}">🗑️ Delete</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="3">No invoices yet.</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<br>
+<a href="{% url 'personal-dashboard' %}">← Back to dashboard</a>

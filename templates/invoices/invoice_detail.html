@@ -1,0 +1,51 @@
+<h1>Invoice {{ invoice.invoice_number }}</h1>
+
+<p>
+    <strong>Status:</strong> {{ invoice.get_status_display }}
+</p>
+
+{% if invoice.status == "draft" %}
+    <a href="{% url 'invoice-mark-sent' invoice.id %}">
+        📤 Send invoice
+    </a>
+{% elif invoice.status == "sent" %}
+    <a href="{% url 'invoice-mark-paid' invoice.id %}">
+        💰 Mark as paid
+    </a>
+{% endif %}
+
+<p><strong>Issued:</strong> {{ invoice.issue_date }}</p>
+
+<hr>
+
+<h2>Client</h2>
+<p>{{ invoice.client.name }}</p>
+
+<hr>
+
+<h2>Items</h2>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Description</th>
+        <th>Qty</th>
+        <th>Unit price</th>
+        <th>Total</th>
+    </tr>
+
+    {% for item in invoice.items.all %}
+    <tr>
+        <td>{{ item.description }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.unit_price }}</td>
+        <td>{{ item.total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<h3>Total: {{ invoice.total_amount }}</h3>
+
+<br>
+<a href="{% url 'invoice-list' %}">⬅ Back to invoices</a>

@@ -1,0 +1,26 @@
+<h1>Create invoice</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <fieldset>
+        <legend>Invoice</legend>
+        {{ form.as_p }}
+    </fieldset>
+
+    <fieldset>
+        <legend>Items</legend>
+        {{ formset.management_form }}
+
+        {% for form in formset %}
+            <div style="margin-bottom: 10px;">
+                {{ form.as_p }}
+            </div>
+        {% endfor %}
+    </fieldset>
+
+    <button type="submit">Save invoice</button>
+</form>
+
+<br>
+<a href="{% url 'invoice-list' %}">Cancel</a>

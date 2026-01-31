@@ -1,0 +1,7 @@
+<h2>Delete invoice {{ invoice.invoice_number }}?</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, delete</button>
+    <a href="{% url 'invoice-list' %}">Cancel</a>
+</form>

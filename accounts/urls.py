@@ -1,20 +1,17 @@
-from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
 
-from .views import (
-    dashboard_view,
-    edit_profile_view,
-    home_view,
-    onboarding_view,
-    register_view,
-)
+from . import views
 
 urlpatterns = [
-    path("", home_view, name="home"),
-    path("onboarding/", onboarding_view, name="onboarding"),
-    path("dashboard/", dashboard_view, name="dashboard"),
-    path("profile/edit/", edit_profile_view, name="edit_profile"),
-    path("logout/", LogoutView.as_view(), name="logout"),
-    path("register/", register_view, name="register"),
-    path("login/", LoginView.as_view(template_name="public/login.html"), name="login"),
+    path("", views.home_view, name="home"),
+    path("login/", views.login_view, name="login"),
+    path("register/", views.register_view, name="register"),
+    path("account-type/", views.account_type_view, name="account-type"),
+    path("profile/edit/",views.personal_profile_edit_view,name="personal-profile-edit",),
+    path("onboarding/personal/", views.personal_onboarding_view, name="personal-onboarding"),
+    path("onboarding/business/", views.business_onboarding_view, name="business-onboarding"),
+
+    path("dashboard/", views.dashboard_view, name="dashboard"),
+    path("dashboard/personal/", views.personal_dashboard_view, name="personal-dashboard"),
+    path("dashboard/business/", views.business_dashboard_view, name="business-dashboard"),
 ]

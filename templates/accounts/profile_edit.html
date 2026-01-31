@@ -1,0 +1,12 @@
+<h1>Edit personal profile</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Save changes</button>
+</form>
+
+<br>
+
+<a href="{% url 'personal-dashboard' %}">← Back to dashboard</a>

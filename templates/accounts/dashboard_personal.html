@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+<h1>Welcome 👋</h1>
+<p>You are logged in as a personal account.</p>
+
+<hr>
+
+<div style="margin-bottom: 16px;">
+    <a href="{% url 'client-create' %}">➕ Create client</a>
+    |
+    <a href="{% url 'client-list' %}">📇 Clients</a>
+</div>
+
+<div style="margin-bottom: 16px;">
+    <a href="{% url 'invoice-create' %}">➕ Create invoice</a>
+    |
+    <a href="{% url 'invoice-list' %}">📄 Invoices</a>
+</div>
+
+<hr>
+
+<div style="margin-bottom: 16px;">
+<a href="{% url 'personal-profile-edit' %}">
+    ⚙️ Edit profile
+</a></div>
+
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">🚪 Logout</button>
+</form>
+
+</body>
+</html>

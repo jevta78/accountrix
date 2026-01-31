@@ -1,0 +1,23 @@
+<h1>Login</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <p>
+        <label>Email</label><br>
+        <input type="email" name="email" required>
+    </p>
+
+    <p>
+        <label>Password</label><br>
+        <input type="password" name="password" required>
+    </p>
+
+    <button type="submit">Login</button>
+</form>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color:red;">{{ message }}</p>
+    {% endfor %}
+{% endif %}

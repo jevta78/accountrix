@@ -1,47 +1,21 @@
 from django import forms
-from django.contrib.auth import get_user_model
 
-from .models import BusinessProfile, UserProfile
-
-
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ["first_name", "last_name", "phone"]
-
-
-class BusinessProfileForm(forms.ModelForm):
-    class Meta:
-        model = BusinessProfile
-        fields = [
-            "company_name",
-            "address",
-            "city",
-            "country",
-            "iban",
-            "swift",
-        ]
-
-User = get_user_model()
+from .models import BusinessProfile, PersonalProfile, User
 
 
 class UserRegisterForm(forms.ModelForm):
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
+    password1 = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
         model = User
         fields = ["email"]
 
     def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
-
-        if password1 and password2 and password1 != password2:
+        cleaned = super().clean()
+        if cleaned.get("password1") != cleaned.get("password2"):
             raise forms.ValidationError("Passwords do not match")
-
-        return cleaned_data
+        return cleaned
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -49,3 +23,15 @@ class UserRegisterForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class PersonalProfileForm(forms.ModelForm):
+    class Meta:
+        model = PersonalProfile
+        fields = ["first_name", "last_name", "phone"]
+
+
+class BusinessProfileForm(forms.ModelForm):
+    class Meta:
+        model = BusinessProfile
+        fields = ["company_name"]

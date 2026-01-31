@@ -1,11 +1,2 @@
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-from .models import BusinessProfile, User, UserProfile
-
-
-@receiver(post_save, sender=User)
-def create_user_profiles(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-        BusinessProfile.objects.create(user=instance)
+# trenutno nam ne trebaju signali
+# ostavljamo fajl prazan svesno

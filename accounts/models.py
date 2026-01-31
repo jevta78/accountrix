@@ -5,6 +5,9 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
+# =========================
+# Custom User
+# =========================
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -21,7 +24,6 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
-
         return self.create_user(email, password, **extra_fields)
 
 
@@ -40,38 +42,39 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-    
-class UserProfile(models.Model):
+
+
+# =========================
+# Personal Profile
+# =========================
+
+class PersonalProfile(models.Model):
     user = models.OneToOneField(
-        "User",
+        User,
         on_delete=models.CASCADE,
-        related_name="profile",
+        related_name="personal_profile",
     )
 
-    first_name = models.CharField(max_length=100, blank=True)
-    last_name = models.CharField(max_length=100, blank=True)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=30, blank=True)
-
     onboarding_completed = models.BooleanField(default=False)
-
     def __str__(self):
-        return f"{self.user.email} profile"
-    
-    
+        return f"{self.first_name} {self.last_name}"
+
+
+# =========================
+# Business Profile
+# =========================
+
 class BusinessProfile(models.Model):
-    user = models.OneToOneField(
-        "User",
+    owner = models.OneToOneField(
+        User,
         on_delete=models.CASCADE,
-        related_name="business",
+        related_name="business_profile",
     )
 
-    company_name = models.CharField(max_length=255, blank=True)
-    address = models.TextField(blank=True)
-    city = models.CharField(max_length=100, blank=True)
-    country = models.CharField(max_length=100, blank=True)
-
-    iban = models.CharField(max_length=50, blank=True)
-    swift = models.CharField(max_length=50, blank=True)
-
+    company_name = models.CharField(max_length=255)
+    onboarding_completed = models.BooleanField(default=False)
     def __str__(self):
-        return f"{self.company_name or self.user.email}"
+        return self.company_name

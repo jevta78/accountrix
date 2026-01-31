@@ -1,0 +1,13 @@
+<h1>Select account type</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <button type="submit" name="account_type" value="personal">
+        Personal account
+    </button>
+
+    <button type="submit" name="account_type" value="business">
+        Business account
+    </button>
+</form>
