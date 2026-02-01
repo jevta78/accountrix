@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
@@ -27,14 +27,20 @@ def home_view(request):
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect("dashboard")
+        return redirect_after_login(request.user)
 
     if request.method == "POST":
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect_after_login(user)
+
+            login(
+                request,
+                user,
+                backend="accounts.backends.EmailBackend",
+            )
+
+            return redirect("account-type")
     else:
         form = UserRegisterForm()
 
@@ -186,3 +192,8 @@ def personal_profile_edit_view(request):
         "accounts/profile_edit.html",
         {"form": form},
     )
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect("home")

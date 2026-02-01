@@ -132,5 +132,6 @@ LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "home"
 
 AUTHENTICATION_BACKENDS = [
+    "accounts.backends.EmailBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]

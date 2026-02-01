@@ -8,13 +8,9 @@ from .models import Invoice, InvoiceStatus
 
 @login_required
 def invoice_list_view(request):
-    user = request.user
-
-    invoices = (
-        Invoice.objects
-        .filter(owner=user)
-        .order_by("-created_at")
-    )
+    invoices = Invoice.objects.filter(
+        owner=request.user
+    ).order_by("-created_at")
 
     return render(
         request,
@@ -22,27 +18,21 @@ def invoice_list_view(request):
         {"invoices": invoices},
     )
 
-
 @login_required
 def invoice_create_view(request):
     user = request.user
-    profile = user.personal_profile  # koristi se samo za validaciju / UI
 
     if request.method == "POST":
-        form = InvoiceForm(
-            request.POST,
-            user=user,
-        )
+        form = InvoiceForm(request.POST, user=user)
         formset = InvoiceItemCreateFormSet(request.POST)
 
         if form.is_valid() and formset.is_valid():
-            with transaction.atomic():
-                invoice = form.save(commit=False)
-                invoice.owner = user   # ✅ KLJUČNA LINIJA
-                invoice.save()
+            invoice = form.save(commit=False)
+            invoice.owner = user
+            invoice.save()
 
-                formset.instance = invoice
-                formset.save()
+            formset.instance = invoice
+            formset.save()
 
             return redirect("invoice-list")
     else:
@@ -52,16 +42,11 @@ def invoice_create_view(request):
     return render(
         request,
         "invoices/invoice_form.html",
-        {
-            "form": form,
-            "formset": formset,
-        },
+        {"form": form, "formset": formset},
     )
 
 @login_required
 def invoice_detail_view(request, invoice_id):
-    profile = request.user.personal_profile
-
     invoice = get_object_or_404(
         Invoice,
         id=invoice_id,
@@ -71,9 +56,7 @@ def invoice_detail_view(request, invoice_id):
     return render(
         request,
         "invoices/invoice_detail.html",
-        {
-            "invoice": invoice,
-        },
+        {"invoice": invoice},
     )
 
 @login_required
